@@ -4,7 +4,6 @@ class CustomTableViewCell: UITableViewCell {
     var control: UIControl!
     let radioButton = RadioButton()
     let textLabelPadding: CGFloat = 12
-    
     var textLabelHeightConstraint: NSLayoutConstraint!
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -30,6 +29,7 @@ class CustomTableViewCell: UITableViewCell {
             radioButton.topAnchor.constraint(equalTo: control.topAnchor),
             radioButton.bottomAnchor.constraint(equalTo: control.bottomAnchor)
         ])
+        self.textLabel?.numberOfLines = 3
     }
     
     override func layoutSubviews() {
@@ -41,8 +41,18 @@ class CustomTableViewCell: UITableViewCell {
         // Additional customizations
         textLabel?.numberOfLines = 3
         textLabel?.lineBreakMode = .byTruncatingTail
-        textLabel?.textColor = .black
         textLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        textLabel?.translatesAutoresizingMaskIntoConstraints = false
+        guard let textLabel = textLabel else{
+            return
+        }
+        NSLayoutConstraint.activate([
+            textLabel.leadingAnchor.constraint(equalTo: control.trailingAnchor, constant: textLabelPadding),
+            textLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -textLabelPadding),
+            textLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: textLabelPadding),
+            textLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -textLabelPadding)
+        ])
+
     }
     
     required init?(coder aDecoder: NSCoder) {

@@ -13,18 +13,29 @@ extension MainViewController: UITableViewDataSource {
         // Return the number of cells you want to display
         return fileCache.items.count
     }
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! CustomTableViewCell
+        cell.radioButton.isSelected = false
+        cell.textLabel?.attributedText = nil
         
         let item = fileCache.items[indexPath.row]
         
-        // Configure the cell with item data
         cell.textLabel?.text = item.title
         cell.radioButton.isSelected = item.isCompleted
-        
+
+        if item.isCompleted {
+            let textAttributes: [NSAttributedString.Key: Any] = [
+                .strikethroughStyle: NSUnderlineStyle.single.rawValue,
+                .strikethroughColor: UIColor(named: "ColorGray")!,
+                .foregroundColor: UIColor(named: "ColorGray")!
+            ]
+            let attributedText = NSAttributedString(string: cell.textLabel?.text ?? "", attributes: textAttributes)
+            cell.textLabel?.attributedText = attributedText
+        }
+
         return cell
     }
+
 
 
 
@@ -51,7 +62,12 @@ extension MainViewController: UITableViewDelegate {
             cell?.textLabel?.attributedText = attributedText
 
             radioButton?.isSelected = true // Update the radio button condition
+            var item = self.fileCache.items[indexPath.row]
+            item.isCompleted = true;
 
+            // Important: Update the item in your fileCache.items array
+            self.fileCache.items[indexPath.row] = item
+            self.fileCache.saveToJSONFile(named: "Tasks.geojson")
             print("Long swipe action performed")
             completionHandler(true)
         }
@@ -66,17 +82,18 @@ extension MainViewController: UITableViewDelegate {
 
 
 
+
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let swipeAction1 = UIContextualAction(style: .normal, title: nil) { (action, view, completionHandler) in
-            print("Swipe action 1 performed")
+            print("Info action performed")
             completionHandler(true)
         }
         swipeAction1.image = UIImage(systemName: "info.circle")
         swipeAction1.backgroundColor = UIColor(named: "ColorGray")
         
         let swipeAction2 = UIContextualAction(style: .destructive, title: nil) { [weak self] (action, view, completionHandler) in
-            print("Swipe action 2 performed")
-            
+            print("Delete action performed")
+            self?.updateTableViewHeight()
             // Get the item to be removed
             let item = self?.fileCache.items[indexPath.row]
             

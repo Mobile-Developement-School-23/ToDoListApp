@@ -20,7 +20,7 @@ class MainViewController: UIViewController{
         
         super.viewDidLoad()
 
-                
+        
         fileCache.items = fileCache.loadFromJSONFile(named: "Tasks.geojson")
         setupNavigationBar()
         view.addSubview(scrollView)
@@ -91,11 +91,24 @@ class MainViewController: UIViewController{
             addNewTaskButton.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
     }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        tableViewHeightConstraint?.isActive = false
+        tableViewHeightConstraint = tableView.heightAnchor.constraint(equalToConstant: tableView.contentSize.height)
+        tableViewHeightConstraint?.isActive = true
+
+        let contentRect: CGRect = self.containerView.subviews.reduce(into: .zero) { rect, view in
+            rect = rect.union(view.frame)
+        }
+        self.scrollView.contentSize = contentRect.size
+    }
+
     @objc func updateTableViewHeight() {
         print("updateTableViewHeight")
         tableViewHeightConstraint?.constant = CGFloat(56 * (fileCache.items.count + 1))
-        tableView.setNeedsLayout()
-        tableView.layoutIfNeeded()
+        view.setNeedsLayout()
+        view.layoutIfNeeded()
     }
     func saveItemsToJSONFile() {
         // Save the items to the JSON file
@@ -150,6 +163,10 @@ class MainViewController: UIViewController{
 
     func setupTableView() -> UITableView {
         let tableView = UITableView()
+        
+        tableView.estimatedRowHeight = 56
+        tableView.rowHeight = UITableView.automaticDimension
+        
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = UIColor(named: "BackSecondary")
         tableView.layer.cornerRadius = 15
@@ -183,13 +200,14 @@ tableView.register(CustomTableViewCell.self, forCellReuseIdentifier: "Cell")
         newTaskVC.didSaveItem = { [weak self] newItem in
             // Add the item to the file cache
             self?.fileCache.addItem(item: newItem)
-            self?.updateTableViewHeight()
 
             // Save the items to the JSON file
             self?.fileCache.saveToJSONFile(named: "Tasks.geojson")
 
             // Refresh the items
             self?.items = self?.fileCache.items ?? []
+            self?.updateTableViewHeight()
+
         }
         
         present(newTaskVC, animated: true)

@@ -13,7 +13,7 @@ class ViewController: UIViewController, UITextViewDelegate {
     let secondView = CustomView()
     let deleteButton = DeleteButton()
     let miniTextView = MiniTextView()
-    
+    let segmentedControl = SegmentedControlView(selectedSegmentIndex: 1)
     override func viewDidLoad() {
         super.viewDidLoad()
         miniTextView.delegate = self
@@ -60,7 +60,6 @@ class ViewController: UIViewController, UITextViewDelegate {
         let importanceView = FirstView()
         stackView.addArrangedSubview(importanceView)
         
-        let segmentedControl = SegmentedControlView(selectedSegmentIndex: 1)
         importanceView.addSubview(segmentedControl)
         NSLayoutConstraint.activate([
             segmentedControl.leadingAnchor.constraint(equalTo: importanceView.trailingAnchor, constant: -142),
@@ -187,6 +186,18 @@ class ViewController: UIViewController, UITextViewDelegate {
             textView.textColor = UIColor(named: "ColorLightTertiary")
         }
     }
+    func selectedPriority(segmentedControl: UISegmentedControl) -> priority{
+        switch segmentedControl.selectedSegmentIndex {
+        case 0:
+            return .unimportant
+        case 1:
+            return .regular
+        case 2:
+            return .important
+        default:
+            return .regular
+        }
+    }
     
     private func setupNavigationBar() -> UIView {
         let customNavigationBar = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 56))
@@ -218,8 +229,10 @@ class ViewController: UIViewController, UITextViewDelegate {
     }
     
     @objc func saveButtonTapped() {
-            // Create a new ToDoItem
-        let newItem = ToDoItem(id: UUID().uuidString, title: miniTextView.text, importance: .regular, deadline: nil, isCompleted: false, createdDate: Date(), changedDate: nil)
+//        let segmentedControl = segmentedControl.selectedSegmentIndex // replace this with your actual segmented control
+            let priority = selectedPriority(segmentedControl: segmentedControl)
+        
+        let newItem = ToDoItem(id: UUID().uuidString, title: miniTextView.text, importance: priority, deadline: nil, isCompleted: false, createdDate: Date(), changedDate: nil)
             
             // Call the didSaveItem closure if it's set
             didSaveItem?(newItem)

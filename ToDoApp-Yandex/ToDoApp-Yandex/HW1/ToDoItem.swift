@@ -5,11 +5,11 @@ struct ToDoItem{
     let title: String
     let importance: priority
     let deadline: Date?
-    let isCompleted: Bool
+    var isCompleted: Bool
     let createdDate: Date
     let changedDate: Date?
 }
-enum priority: String, Codable{
+enum priority: String{
     case unimportant = "неважная"
     case regular = "обычная"
     case important = "важная"
